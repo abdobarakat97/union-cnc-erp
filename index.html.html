@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Union CNC ERP</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* سيتم استكماله في style.css */
+  </style>
+</head>
+<body>
+  <!-- شاشة تسجيل الدخول -->
+  <div id="loginScreen" class="screen active">
+    <div class="login-box">
+      <h1>Union <span>CNC</span></h1>
+      <p>نظام ERP السحابي المتكامل</p>
+      <input type="email" id="email" placeholder="البريد الإلكتروني">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button onclick="login()">دخول</button>
+      <div id="loginError" class="error"></div>
+    </div>
+  </div>
+
+  <!-- لوحة التحكم -->
+  <div id="dashboardScreen" class="screen">
+    <header>
+      <div class="logo">⚙️ Union CNC</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div id="notifContainer" style="position:relative; cursor:pointer;" onclick="toggleNotifications()">
+          <span style="font-size:1.8rem;">🔔</span>
+          <span id="notifBadge" style="position:absolute; top:-8px; right:-8px; background:red; color:#fff; border-radius:50%; padding:2px 8px; font-size:0.7rem; display:none;">0</span>
+        </div>
+        <span id="userName"></span>
+        <button onclick="logout()" class="logout">خروج</button>
+      </div>
+    </header>
+    <!-- قائمة الإشعارات المنسدلة -->
+    <div id="notifDropdown" style="display:none; position:absolute; top:60px; right:20px; background:#1c1c24; border:1px solid #333; border-radius:16px; padding:12px; width:300px; max-height:300px; overflow-y:auto; z-index:1000; box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+      <div id="notifList"></div>
+    </div>
+
+    <!-- أزرار التبويب -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('sales')">💰 المبيعات</button>
+      <button class="tab-btn" onclick="switchTab('maintenance')">🔧 الصيانة</button>
+      <button class="tab-btn" onclick="switchTab('hr')">👥 الموارد البشرية</button>
+      <button class="tab-btn" onclick="switchTab('reports')">📊 التقارير</button>
+    </div>
+
+    <!-- ===== تبويب المبيعات ===== -->
+    <div id="salesTab" class="tab-content active">
+      <!-- بطاقات إحصائية -->
+      <div class="stats">
+        <div class="stat green"><span>الإيرادات</span><strong id="statRevenue">0 EGP</strong></div>
+        <div class="stat yellow"><span>قريب الاستحقاق</span><strong id="statDueSoon">0</strong></div>
+        <div class="stat red"><span>متأخرات</span><strong id="statOverdue">0</strong></div>
+      </div>
+      <!-- العملاء -->
+      <div class="card">
+        <h2>👥 العملاء</h2>
+        <button onclick="refreshCustomers()" class="btn-small">تحديث</button>
+        <div id="customerList" class="list"></div>
+      </div>
+      <!-- إضافة عقد -->
+      <div class="card">
+        <h2>➕ عقد جديد</h2>
+        <div class="form-row">
+          <select id="custSelect"><option value="">اختر عميل</option></select>
+          <input type="number" id="totalUSD" placeholder="المبلغ بالدولار">
+          <input type="number" id="rateInput" placeholder="سعر الصرف">
+          <input type="number" id="instCount" placeholder="عدد الأقساط" value="6">
+          <button onclick="createContract()" class="btn-primary">إنشاء العقد</button>
+        </div>
+        <div id="contractMsg" class="msg"></div>
+      </div>
+      <!-- الأقساط -->
+      <div class="card">
+        <h2>📋 الأقساط</h2>
+        <select id="contractSelect" onchange="loadInstallments()"><option value="">اختر عقداً</option></select>
+        <div id="installmentContainer" class="list"></div>
+      </div>
+    </div>
+
+    <!-- ===== تبويب الصيانة ===== -->
+    <div id="maintenanceTab" class="tab-content">
+      <div class="card">
+        <h2>🆕 إضافة ماكينة</h2>
+        <div class="form-row">
+          <input type="text" id="assetSerial" placeholder="الرقم التسلسلي">
+          <input type="text" id="assetProduct" placeholder="اسم المنتج">
+          <select id="assetCustomer"><option value="">اختر العميل</option></select>
+          <input type="date" id="assetPurchase">
+          <input type="date" id="assetWarranty">
+          <button onclick="addAsset()" class="btn-primary">إضافة</button>
+        </div>
+        <div id="assetMsg" class="msg"></div>
+      </div>
+      <div class="card">
+        <h2>📋 الماكينات</h2>
+        <div id="assetList" class="list"></div>
+      </div>
+      <div class="card">
+        <h2>🛠️ أمر صيانة جديد</h2>
+        <div class="form-row">
+          <select id="orderAsset"><option value="">اختر ماكينة</option></select>
+          <select id="orderEngineer"><option value="">اختر المهندس</option></select>
+          <textarea id="orderIssue" placeholder="وصف العطل"></textarea>
+          <select id="orderPriority"><option value="عادي">عادي</option><option value="عاجل">عاجل</option></select>
+          <input type="date" id="orderSchedule">
+          <button onclick="createOrder()" class="btn-primary">إنشاء الأمر</button>
+        </div>
+        <div id="orderMsg" class="msg"></div>
+      </div>
+      <div class="card">
+        <h2>📌 أوامر الصيانة</h2>
+        <select id="filterOrders" onchange="loadOrders()">
+          <option value="all">الكل</option>
+          <option value="مفتوح">مفتوح</option>
+          <option value="قيد التنفيذ">قيد التنفيذ</option>
+          <option value="مغلق">مغلق</option>
+        </select>
+        <div id="orderList" class="list"></div>
+      </div>
+      <!-- نافذة الزيارة -->
+      <div id="visitModal" class="modal hidden">
+        <div class="modal-content" style="max-width:500px;">
+          <span class="close" onclick="closeVisitModal()">&times;</span>
+          <h3>📝 تسجيل زيارة ميدانية</h3>
+          <div style="background:#111;padding:10px;border-radius:12px;margin:10px 0;">
+            <p>📍 <span id="visitGPS">جاري تحديد الموقع...</span></p>
+            <button onclick="getGPSLocation()" class="btn-small">تحديث الموقع</button>
+          </div>
+          <textarea id="visitNotes" placeholder="ملاحظات" style="width:100%;padding:12px;border-radius:12px;background:#111;color:#fff;border:1px solid #333;"></textarea>
+          <div style="margin:10px 0;">
+            <label>📸 صور</label>
+            <input type="file" id="visitPhotos" accept="image/*" multiple>
+          </div>
+          <div style="margin:10px 0;">
+            <label>✍️ التوقيع الرقمي</label>
+            <canvas id="signatureCanvas" style="width:100%;height:150px;border:2px dashed #555;border-radius:12px;background:#1a1a1a;touch-action:none;"></canvas>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+              <button onclick="clearSignature()" class="btn-small">مسح</button>
+              <button onclick="saveSignature()" class="btn-small">تثبيت</button>
+            </div>
+            <input type="hidden" id="signatureData" value="">
+          </div>
+          <input type="hidden" id="visitOrderId">
+          <button onclick="submitVisit()" class="btn-primary">حفظ الزيارة</button>
+          <div id="visitMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== تبويب الموارد البشرية ===== -->
+    <div id="hrTab" class="tab-content">
+      <div class="card">
+        <h2>⏱️ الحضور والانصراف</h2>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button onclick="clockIn()" class="btn-primary" style="flex:1;">✅ حضور</button>
+          <button onclick="clockOut()" class="btn-primary" style="flex:1; background:#f39c12;">🚪 انصراف</button>
+        </div>
+        <div id="attendanceMsg" class="msg"></div>
+        <div style="margin-top:10px;font-size:0.8rem;color:var(--gray);">
+          <span>📍 <span id="liveGPS">جاري تحديد الموقع...</span></span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>💰 السلف</h2>
+        <div class="form-row">
+          <select id="loanEmployee"><option value="">اختر موظف</option></select>
+          <input type="number" id="loanAmount" placeholder="المبلغ بالدولار">
+          <input type="number" id="loanDeduction" placeholder="الخصم الشهري">
+          <button onclick="addLoan()" class="btn-primary">إضافة سلفة</button>
+        </div>
+        <div id="loanMsg" class="msg"></div>
+        <div id="loanList" class="list"></div>
+      </div>
+      <div class="card">
+        <h2>📄 توليد الراتب</h2>
+        <div class="form-row">
+          <select id="payrollEmployee"><option value="">اختر موظف</option></select>
+          <input type="month" id="payrollMonth" value="2026-08">
+          <select id="payrollCurrency"><option value="EGP">جنيه</option><option value="USD">دولار</option></select>
+          <button onclick="generatePayroll()" class="btn-primary">توليد</button>
+        </div>
+        <div id="payrollMsg" class="msg"></div>
+      </div>
+      <div class="card">
+        <h2>📋 الرواتب</h2>
+        <select id="filterPayrolls" onchange="loadPayrolls()">
+          <option value="all">الكل</option>
+          <option value="مستحق">مستحق</option>
+          <option value="مدفوع">مدفوع</option>
+        </select>
+        <div id="payrollList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- ===== تبويب التقارير ===== -->
+    <div id="reportsTab" class="tab-content">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+        <select id="reportPeriod" onchange="loadAllReports()" style="padding:10px; border-radius:12px; background:#111; color:#fff; border:1px solid #333;">
+          <option value="all">كل الفترات</option>
+          <option value="this_month">هذا الشهر</option>
+          <option value="last_month">الشهر الماضي</option>
+          <option value="this_year">هذا العام</option>
+        </select>
+        <button onclick="exportCSV('financial')" class="btn-small" style="background:#2ecc71;">📥 تصدير CSV</button>
+        <button onclick="printReport()" class="btn-small" style="background:#3498db;">🖨️ طباعة</button>
+      </div>
+      <div class="stats" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat green"><span>📈 الإيرادات</span><strong id="kpiRevenue">0 EGP</strong></div>
+        <div class="stat yellow"><span>💰 المستحق</span><strong id="kpiRemaining">0 EGP</strong></div>
+        <div class="stat red"><span>⏳ متأخرات</span><strong id="kpiOverdue">0</strong></div>
+        <div class="stat" style="border-color:#9b59b6;"><span>📊 نسبة التحصيل</span><strong id="kpiCollection">0%</strong></div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="card"><h3>📊 المبيعات الشهرية</h3><canvas id="salesChart" style="width:100%; height:200px;"></canvas></div>
+        <div class="card"><h3>🧩 توزيع الصيانة</h3><canvas id="maintenanceChart" style="width:100%; height:200px;"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>📋 تفاصيل الأقساط</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem;">
+          <div>الإجمالي: <strong id="detailTotalDue">0 USD</strong></div>
+          <div>المدفوع: <strong id="detailTotalPaid">0 USD</strong></div>
+          <div>المتبقي: <strong id="detailRemaining">0 USD</strong></div>
+          <div>العمولات: <strong id="detailCommissions">0 USD</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>👥 ملخص الموارد البشرية</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+          <div>عدد الموظفين: <strong id="hrTotalEmployees">0</strong></div>
+          <div>رواتب الشهر: <strong id="hrTotalPayroll">0 EGP</strong></div>
+          <div>معدل الحضور: <strong id="hrAttendance">0%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة الدفع (مودال) -->
+  <div id="paymentModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>تسجيل دفعة</h3>
+      <p>القسط رقم: <span id="modalInstNum"></span></p>
+      <p>المبلغ المستحق: <span id="modalDueUSD"></span> USD | <span id="modalDueEGP"></span> EGP</p>
+      <input type="number" id="payUSD" placeholder="المبلغ بالدولار">
+      <input type="number" id="payEGP" placeholder="المبلغ بالجنيه">
+      <input type="number" id="payRate" placeholder="سعر الصرف اليوم">
+      <select id="payBankAccount" style="width:100%; padding:12px; margin:8px 0; border-radius:12px; border:1px solid #333; background:#111; color:#fff;">
+        <option value="">اختر الخزينة</option>
+      </select>
+      <button onclick="confirmPayment()" class="btn-primary">تأكيد الدفع</button>
+      <div id="payMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+</body>
+</html>
