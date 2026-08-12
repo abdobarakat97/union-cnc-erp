@@ -1,0 +1,51 @@
+:root { --bg: #0f0f12; --card: #1c1c24; --border: #2a2a35; --text: #eaeef2; --green: #2ecc71; --red: #e74c3c; --yellow: #f1c40f; --gray: #7f8c8d; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+body { background: var(--bg); color: var(--text); padding: 0 16px; }
+.screen { display: none; max-width: 700px; margin: 0 auto; padding: 20px 0; }
+.screen.active { display: block; }
+
+.login-box { background: var(--card); padding: 40px 25px; border-radius: 28px; margin-top: 15vh; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.7); }
+.login-box h1 { font-size: 2.8rem; } .login-box h1 span { color: var(--green); }
+.login-box input { width:100%; padding:14px; margin:10px 0; border-radius:14px; border:1px solid var(--border); background:#111; color:#fff; }
+.login-box button { width:100%; padding:14px; background: var(--green); border:none; border-radius:14px; font-weight:bold; font-size:1.2rem; color:#000; cursor:pointer; }
+
+header { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:20px; flex-wrap:wrap; }
+.logo { font-size:1.6rem; font-weight:bold; color:var(--green); }
+.logout { background:transparent; border:1px solid var(--red); color:var(--red); padding:4px 16px; border-radius:30px; cursor:pointer; }
+
+.tab-bar { display:flex; gap:8px; margin-bottom:20px; background:var(--card); padding:6px; border-radius:30px; flex-wrap:wrap; }
+.tab-btn { flex:1; padding:10px; border:none; border-radius:30px; background:transparent; color:var(--text); font-weight:bold; cursor:pointer; transition:0.2s; min-width:80px; }
+.tab-btn.active { background:var(--green); color:#000; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+.stat { background:var(--card); padding:14px; border-radius:16px; border-left:5px solid var(--gray); }
+.stat.green { border-color:var(--green); } .stat.yellow { border-color:var(--yellow); } .stat.red { border-color:var(--red); }
+.stat span { font-size:0.8rem; color:var(--gray); } .stat strong { display:block; font-size:1.3rem; margin-top:4px; }
+
+.card { background:var(--card); padding:18px; border-radius:20px; margin-bottom:18px; }
+.card h2, .card h3 { font-size:1.1rem; margin-bottom:12px; color:var(--gray); }
+.form-row { display:flex; flex-direction:column; gap:10px; }
+.form-row input, .form-row select, .form-row textarea { padding:12px; border-radius:12px; border:1px solid var(--border); background:#131318; color:#fff; width:100%; }
+.btn-primary { background:var(--green); color:#000; padding:12px; border:none; border-radius:30px; font-weight:bold; cursor:pointer; }
+.btn-small { background:var(--border); color:#fff; padding:4px 16px; border-radius:30px; border:none; cursor:pointer; }
+
+.list { display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto; margin-top:10px; }
+.list-item { background:#131318; padding:12px 16px; border-radius:14px; border-right:4px solid var(--green); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+.list-item .info { flex:1; } .list-item .info strong { display:block; } .list-item .info small { color:var(--gray); }
+.status-badge { padding:4px 12px; border-radius:30px; font-size:0.7rem; font-weight:bold; }
+.status-badge.مسدد { background:var(--green); color:#000; }
+.status-badge.متأخر { background:var(--red); color:#fff; }
+.status-badge.معلق { background:var(--yellow); color:#000; }
+.pay-btn { background:var(--green); color:#000; border:none; border-radius:30px; padding:6px 14px; font-weight:bold; cursor:pointer; }
+
+.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:999; }
+.modal.hidden { display:none; }
+.modal-content { background:var(--card); padding:30px; border-radius:28px; width:90%; max-width:400px; }
+.modal-content input, .modal-content select { width:100%; padding:12px; margin:8px 0; border-radius:12px; border:1px solid var(--border); background:#111; color:#fff; }
+.close { float:right; font-size:1.8rem; cursor:pointer; color:var(--gray); }
+.error { color:var(--red); margin-top:10px; } .msg { color:var(--yellow); margin-top:6px; }
+
+#signatureCanvas { touch-action: none; cursor: crosshair; }
+::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:var(--bg); } ::-webkit-scrollbar-thumb { background:var(--gray); border-radius:10px; }
