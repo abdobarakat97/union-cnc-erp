@@ -1,7 +1,7 @@
 // ========================================================================
 // UNION CNC PWA - FULL APP (Performance Enhanced)
 // ========================================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbw7j1vijV2Zr18oxpakcFG6x3Rv8aCaMTORzyALA0otdpDOJN_dhBniMDSmzr4jSeH3Yw/exec'; // سيتم تحديثه
+const API_URL = 'https://script.google.com/macros/s/AKfycbzezcpAySdzaRhWynDHN91ILIU2NL5h4kmlpq7IgI9tqoOq3T0Sb_67zf_sQObOkq2d9A/exec'; // سيتم تحديثه
 let currentToken = localStorage.getItem('token') || '';
 let currentUserId = localStorage.getItem('userId') || 1;
 let selectedInstId = null;
